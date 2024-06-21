@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HLS Video Player with CORS</title>
+    <style>
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #f0f0f0;
+      }
+      video {
+        width: 80%;
+        max-width: 800px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <video id="videoPlayer" controls></video>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <select id="qualitySelector"></select>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const video = document.getElementById("videoPlayer");
+        const videoSrc = "http://localhost:8000/live/test/index.m3u8";
+
+        if (Hls.isSupported()) {
+          const hls = new Hls();
+          hls.loadSource(videoSrc);
+          hls.attachMedia(video);
+          hls.on(Hls.Events.MANIFEST_PARSED, function () {
+            video.play();
+          });
+          hls.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
+            // Populate quality levels
+            const qualitySelector = document.getElementById("qualitySelector");
+            console.log({ data });
+
+            // qualitySelector.innerHTML = data.levels
+            //   .map((level, index) => {
+            //     return `<option value="${index}">${level.height}p</option>`;
+            //   })
+            //   .join("");
+            //
+            // // Default to auto quality
+            // qualitySelector.innerHTML += '<option value="-1">Auto</option>';
+            // qualitySelector.value = -1;
+            //
+            // qualitySelector.addEventListener("change", () => {
+            //   const qualityIndex = parseInt(qualitySelector.value, 10);
+            //   hls.currentLevel = qualityIndex;
+            // });
+          });
+        } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+          video.src = videoSrc;
+          video.addEventListener("loadedmetadata", function () {
+            video.play();
+          });
+        }
+      });
+    </script>
+  </body>
+</html>
